@@ -12,6 +12,10 @@ function App() {
   const [isLocked, setIsLocked] = useState(false);
   const [sessionCount, setSessionCount] = useState(0);
   const [persistentCount, setPersistentCount] = useState(0);
+  const [showVoiceSettings, setShowVoiceSettings] = useState(false);
+  const [showHistorySettings, setShowHistorySettings] = useState(false);
+  const [showExportSettings, setShowExportSettings] = useState(false);
+  const [showLockScreenSettings, setShowLockScreenSettings] = useState(false);
 
   useEffect(() => {
     const fetchPersistentCount = async () => {
@@ -272,6 +276,68 @@ function App() {
           </ul>
         </div>
       )}
+      <div className="w-full max-w-4xl mt-8">
+        <div className="bg-white shadow-md rounded-lg p-6 mb-4">
+          <h2 className="text-2xl font-bold mb-4">Voice Commands Settings</h2>
+          <button
+            className="btn btn-outline mb-4"
+            onClick={() => setShowVoiceSettings(!showVoiceSettings)}
+          >
+            {showVoiceSettings ? 'Hide' : 'Show'} Settings
+          </button>
+          {showVoiceSettings && (
+            <div className="space-y-4">
+              <p className="text-gray-700">Configure your voice commands here.</p>
+              {/* Add more settings related to voice commands here */}
+            </div>
+          )}
+        </div>
+        <div className="bg-white shadow-md rounded-lg p-6 mb-4">
+          <h2 className="text-2xl font-bold mb-4">History Tracking Settings</h2>
+          <button
+            className="btn btn-outline mb-4"
+            onClick={() => setShowHistorySettings(!showHistorySettings)}
+          >
+            {showHistorySettings ? 'Hide' : 'Show'} Settings
+          </button>
+          {showHistorySettings && (
+            <div className="space-y-4">
+              <p className="text-gray-700">Configure your history tracking here.</p>
+              {/* Add more settings related to history tracking here */}
+            </div>
+          )}
+        </div>
+        <div className="bg-white shadow-md rounded-lg p-6 mb-4">
+          <h2 className="text-2xl font-bold mb-4">Data Export Settings</h2>
+          <button
+            className="btn btn-outline mb-4"
+            onClick={() => setShowExportSettings(!showExportSettings)}
+          >
+            {showExportSettings ? 'Hide' : 'Show'} Settings
+          </button>
+          {showExportSettings && (
+            <div className="space-y-4">
+              <p className="text-gray-700">Configure your data export settings here.</p>
+              {/* Add more settings related to data export here */}
+            </div>
+          )}
+        </div>
+        <div className="bg-white shadow-md rounded-lg p-6 mb-4">
+          <h2 className="text-2xl font-bold mb-4">Lock Screen Display Settings</h2>
+          <button
+            className="btn btn-outline mb-4"
+            onClick={() => setShowLockScreenSettings(!showLockScreenSettings)}
+          >
+            {showLockScreenSettings ? 'Hide' : 'Show'} Settings
+          </button>
+          {showLockScreenSettings && (
+            <div className="space-y-4">
+              <p className="text-gray-700">Configure your lock screen display settings here.</p>
+              {/* Add more settings related to lock screen display here */}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
