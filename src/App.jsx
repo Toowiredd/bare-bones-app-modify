@@ -27,12 +27,8 @@ class ErrorBoundary extends React.Component {
 }
 
 function App() {
-    console.log("App component rendered");
+  console.log("App component rendered");
   const [counts, setCounts] = useState({ PET: 0, HDP: 0, glass: 0, carton: 0, can: 0 });
-
-  useEffect(() => {
-    console.log("Current state values:", { counts, history, filter, csvData, lockout, isLocked, sessionCount, persistentCount });
-  }, [counts, history, filter, csvData, lockout, isLocked, sessionCount, persistentCount]);
   const [history, setHistory] = useState([]);
   const [filter, setFilter] = useState('all');
   const [csvData, setCsvData] = useState([]);
@@ -226,6 +222,10 @@ function App() {
   };
 
   const filteredHistory = filter === 'all' ? history : history.filter(entry => entry.type === filter);
+
+  useEffect(() => {
+    console.log("Current state values:", { counts, history, filter, csvData, lockout, isLocked, sessionCount, persistentCount });
+  }, [counts, history, filter, csvData, lockout, isLocked, sessionCount, persistentCount]);
 
   return (
     <>
