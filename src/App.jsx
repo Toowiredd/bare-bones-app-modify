@@ -7,6 +7,7 @@ function App() {
   const [history, setHistory] = useState([]);
   const [filter, setFilter] = useState('all');
   const [csvData, setCsvData] = useState([]);
+  const [lockout, setLockout] = useState(null);
 
   const commands = [
     {
@@ -14,10 +15,10 @@ function App() {
       callback: () => console.log('Counting started')
     },
     {
-      command: 'count *',
-      callback: (type) => {
+      command: 'count :number *',
+      callback: (number, type) => {
         if (counts.hasOwnProperty(type)) {
-          const newCounts = { ...counts, [type]: counts[type] + 1 };
+          const newCounts = { ...counts, [type]: counts[type] + parseInt(number) };
           setCounts(newCounts);
           setHistory([...history, { type, count: newCounts[type], timestamp: new Date().toLocaleString() }]);
         }
@@ -30,6 +31,36 @@ function App() {
           const newCounts = { ...counts, [type]: 0 };
           setCounts(newCounts);
           setHistory([...history, { type, count: 0, timestamp: new Date().toLocaleString() }]);
+        }
+      }
+    },
+    {
+      command: 'lock out *',
+      callback: (type) => {
+        if (counts.hasOwnProperty(type)) {
+          setLockout(type);
+          console.log(`Locked out ${type}`);
+          // Add audible noise indication here
+        }
+      }
+    },
+    {
+      command: 'unlock *',
+      callback: (type) => {
+        if (lockout === type) {
+          setLockout(null);
+          console.log(`Unlocked ${type}`);
+          // Add audible noise indication here
+        }
+      }
+    },
+    {
+      command: ':number',
+      callback: (number) => {
+        if (lockout && counts.hasOwnProperty(lockout)) {
+          const newCounts = { ...counts, [lockout]: counts[lockout] + parseInt(number) };
+          setCounts(newCounts);
+          setHistory([...history, { type: lockout, count: newCounts[lockout], timestamp: new Date().toLocaleString() }]);
         }
       }
     }
