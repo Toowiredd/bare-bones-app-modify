@@ -8,6 +8,7 @@ function App() {
   const [filter, setFilter] = useState('all');
   const [csvData, setCsvData] = useState([]);
   const [lockout, setLockout] = useState(null);
+  const [isLocked, setIsLocked] = useState(false);
 
   const commands = [
     {
@@ -62,6 +63,20 @@ function App() {
           setCounts(newCounts);
           setHistory([...history, { type: lockout, count: newCounts[lockout], timestamp: new Date().toLocaleString() }]);
         }
+      }
+    },
+    {
+      command: 'lock screen',
+      callback: () => {
+        setIsLocked(true);
+        console.log('Screen locked');
+      }
+    },
+    {
+      command: 'unlock screen',
+      callback: () => {
+        setIsLocked(false);
+        console.log('Screen unlocked');
       }
     }
   ];
@@ -152,6 +167,17 @@ function App() {
           <li key={index} className="text-lg text-gray-700">{entry.timestamp} - {entry.type}: {entry.count}</li>
         ))}
       </ul>
+      {isLocked && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex flex-col items-center justify-center text-white">
+          <h2 className="text-4xl mb-4">Lock Screen</h2>
+          <div className="text-lg mb-4">Counts:</div>
+          <ul>
+            {Object.keys(counts).map((key) => (
+              <li key={key} className="text-lg">{key}: {counts[key]}</li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
