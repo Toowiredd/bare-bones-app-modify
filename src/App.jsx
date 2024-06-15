@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+import { CSVLink } from "react-csv";
 
 function App() {
   const [counts, setCounts] = useState({ PET: 0, HDP: 0, glass: 0, carton: 0 });
   const [history, setHistory] = useState([]);
   const [filter, setFilter] = useState('all');
+  const [csvData, setCsvData] = useState([]);
 
   const commands = [
     {
@@ -41,6 +43,16 @@ function App() {
 
   const clearHistory = () => {
     setHistory([]);
+  };
+
+  const generateCsvData = () => {
+    const data = filter === 'all' ? history : history.filter(entry => entry.type === filter);
+    const csv = data.map(entry => ({
+      Timestamp: entry.timestamp,
+      Type: entry.type,
+      Count: entry.count
+    }));
+    setCsvData(csv);
   };
 
   const filteredHistory = filter === 'all' ? history : history.filter(entry => entry.type === filter);
@@ -90,6 +102,20 @@ function App() {
       >
         Clear History
       </button>
+      <button
+        className="btn btn-success mb-4"
+        onClick={generateCsvData}
+      >
+        Generate CSV
+      </button>
+      <CSVLink
+        data={csvData}
+        filename={`count_history_${filter}.csv`}
+        className="btn btn-info mb-4"
+        target="_blank"
+      >
+        Export CSV
+      </CSVLink>
       <ul>
         {filteredHistory.map((entry, index) => (
           <li key={index} className="text-lg text-gray-700">{entry.timestamp} - {entry.type}: {entry.count}</li>
