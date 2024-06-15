@@ -46,8 +46,12 @@ function App() {
         .from('persistent_counts')
         .select('count')
         .single();
+      if (error) {
+        console.error('Error fetching persistent count:', error);
+      }
       if (data) {
         setPersistentCount(data.count);
+        console.log('Fetched persistent count:', data.count);
       }
     };
     fetchPersistentCount();
@@ -66,11 +70,14 @@ function App() {
   const commands = [
     {
       command: 'start counting',
-      callback: () => console.log('Counting started')
+      callback: () => {
+        console.log('Counting started');
+      }
     },
     {
       command: 'count :number *',
       callback: (number, type) => {
+        console.log('Recognized command: count', number, type);
         const normalizedType = type.toLowerCase();
         const typeMapping = {
           'pet': 'PET',
@@ -88,11 +95,15 @@ function App() {
         if (containerType && counts.hasOwnProperty(containerType)) {
           const newCounts = { ...counts, [containerType]: counts[containerType] + parseInt(number) };
           setCounts(newCounts);
+          console.log('Updated counts:', newCounts);
           setHistory([...history, { type: containerType, count: newCounts[containerType], timestamp: new Date().toLocaleString() }]);
+          console.log('Updated history:', [...history, { type: containerType, count: newCounts[containerType], timestamp: new Date().toLocaleString() }]);
           const newSessionCount = sessionCount + parseInt(number);
           setSessionCount(newSessionCount);
+          console.log('Updated session count:', newSessionCount);
           const newPersistentCount = persistentCount + parseInt(number);
           setPersistentCount(newPersistentCount);
+          console.log('Updated persistent count:', newPersistentCount);
           updatePersistentCount(newPersistentCount);
         }
       }
@@ -100,6 +111,7 @@ function App() {
     {
       command: 'reset *',
       callback: (type) => {
+        console.log('Recognized command: reset', type);
         const normalizedType = type.toLowerCase();
         const typeMapping = {
           'pet': 'PET',
@@ -117,13 +129,16 @@ function App() {
         if (containerType && counts.hasOwnProperty(containerType)) {
           const newCounts = { ...counts, [containerType]: 0 };
           setCounts(newCounts);
+          console.log('Updated counts:', newCounts);
           setHistory([...history, { type: containerType, count: 0, timestamp: new Date().toLocaleString() }]);
+          console.log('Updated history:', [...history, { type: containerType, count: 0, timestamp: new Date().toLocaleString() }]);
         }
       }
     },
     {
       command: 'lock out *',
       callback: (type) => {
+        console.log('Recognized command: lock out', type);
         const normalizedType = type.toLowerCase();
         const typeMapping = {
           'pet': 'PET',
@@ -148,6 +163,7 @@ function App() {
     {
       command: 'unlock *',
       callback: (type) => {
+        console.log('Recognized command: unlock', type);
         const normalizedType = type.toLowerCase();
         const typeMapping = {
           'pet': 'PET',
@@ -172,14 +188,19 @@ function App() {
     {
       command: ':number',
       callback: (number) => {
+        console.log('Recognized command:', number);
         if (lockout && counts.hasOwnProperty(lockout)) {
           const newCounts = { ...counts, [lockout]: counts[lockout] + parseInt(number) };
           setCounts(newCounts);
+          console.log('Updated counts:', newCounts);
           setHistory([...history, { type: lockout, count: newCounts[lockout], timestamp: new Date().toLocaleString() }]);
+          console.log('Updated history:', [...history, { type: lockout, count: newCounts[lockout], timestamp: new Date().toLocaleString() }]);
           const newSessionCount = sessionCount + parseInt(number);
           setSessionCount(newSessionCount);
+          console.log('Updated session count:', newSessionCount);
           const newPersistentCount = persistentCount + parseInt(number);
           setPersistentCount(newPersistentCount);
+          console.log('Updated persistent count:', newPersistentCount);
           updatePersistentCount(newPersistentCount);
         }
       }
@@ -208,6 +229,7 @@ function App() {
 
   const clearHistory = () => {
     setHistory([]);
+    console.log('History cleared');
   };
 
   const generateCsvData = () => {
@@ -218,6 +240,7 @@ function App() {
       Count: entry.count
     }));
     setCsvData(csv);
+    console.log('Generated CSV data:', csv);
   };
 
   const filteredHistory = filter === 'all' ? history : history.filter(entry => entry.type === filter);
