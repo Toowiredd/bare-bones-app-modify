@@ -18,6 +18,7 @@ class ErrorBoundary extends React.Component {
   }
 
   render() {
+    console.log("ErrorBoundary render method is being executed");
     if (this.state.hasError) {
       return <h1>Something went wrong.</h1>;
     }
@@ -27,6 +28,7 @@ class ErrorBoundary extends React.Component {
 }
 
 function App() {
+  console.log("App component is being rendered");
   console.log("App component rendered");
   const [counts, setCounts] = useState({ PET: 0, HDP: 0, glass: 0, carton: 0, can: 0 });
   const [history, setHistory] = useState([]);
@@ -42,13 +44,19 @@ function App() {
   const [showLockScreenSettings, setShowLockScreenSettings] = useState(false);
 
   useEffect(() => {
+    console.log("useEffect hook is being executed");
     const fetchPersistentCount = async () => {
-      const { data, error } = await supabase
-        .from('persistent_counts')
-        .select('count')
-        .single();
-      if (data) {
-        setPersistentCount(data.count);
+      try {
+        const { data, error } = await supabase
+          .from('persistent_counts')
+          .select('count')
+          .single();
+        if (error) throw error;
+        if (data) {
+          setPersistentCount(data.count);
+        }
+      } catch (error) {
+        console.error('Error fetching persistent count:', error);
       }
     };
     fetchPersistentCount();
@@ -227,6 +235,16 @@ function App() {
     console.log("Current state values:", { counts, history, filter, csvData, lockout, isLocked, sessionCount, persistentCount });
   }, [counts, history, filter, csvData, lockout, isLocked, sessionCount, persistentCount]);
 
+  const startListening = () => {
+    console.log("Starting to listen");
+    SpeechRecognition.startListening();
+  };
+
+  const stopListening = () => {
+    console.log("Stopping listening");
+    SpeechRecognition.stopListening();
+  };
+
   return (
     <>
       <ErrorBoundary>
@@ -235,13 +253,13 @@ function App() {
           <p className="text-lg text-gray-700 mb-4">This app recognizes voice commands to count different types of containers.</p>
           <button
             className="btn btn-primary mb-4"
-            onClick={SpeechRecognition.startListening}
+            onClick={startListening}
           >
             Start Listening
           </button>
           <button
             className="btn btn-secondary mb-4"
-            onClick={SpeechRecognition.stopListening}
+            onClick={stopListening}
           >
             Stop Listening
           </button>
