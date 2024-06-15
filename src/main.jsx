@@ -4,10 +4,12 @@ import App from './App.jsx'
 import './index.css'
 import { SupabaseProvider } from './integrations/supabase/index.js'
 
+console.log('Starting rendering process...');
+
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <SupabaseProvider>
-      <App />
-    </SupabaseProvider>
-  </React.StrictMode>,
-)
+  <SupabaseProvider>
+    <App />
+  </SupabaseProvider>
+);
+
+console.log('Rendering process completed.');

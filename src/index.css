@@ -1,7 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import 'daisyui';
 
 body {
   @apply bg-gray-100 text-gray-900;
+  @apply daisyui;
 }

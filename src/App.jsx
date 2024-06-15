@@ -49,6 +49,8 @@ function App() {
         .single();
       if (data) {
         setPersistentCount(data.count);
+      } else if (error) {
+        console.error('Error fetching persistent count:', error);
       }
     };
     fetchPersistentCount();
