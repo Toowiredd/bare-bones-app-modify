@@ -27,6 +27,7 @@ class ErrorBoundary extends React.Component {
 }
 
 function App() {
+  console.log("App component rendered");
   const [counts, setCounts] = useState({ PET: 0, HDP: 0, glass: 0, carton: 0, can: 0 });
   const [history, setHistory] = useState([]);
   const [filter, setFilter] = useState('all');
@@ -222,148 +223,154 @@ function App() {
 
   const filteredHistory = filter === 'all' ? history : history.filter(entry => entry.type === filter);
 
+  useEffect(() => {
+    console.log("Current state values:", { counts, history, filter, csvData, lockout, isLocked, sessionCount, persistentCount });
+  }, [counts, history, filter, csvData, lockout, isLocked, sessionCount, persistentCount]);
+
   return (
-    <ErrorBoundary>
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
-        <h1 className="text-5xl font-bold mb-4">Voice-Activated Counting</h1>
-        <p className="text-lg text-gray-700 mb-4">This app recognizes voice commands to count different types of containers.</p>
-        <button
-          className="btn btn-primary mb-4"
-          onClick={SpeechRecognition.startListening}
-        >
-          Start Listening
-        </button>
-        <button
-          className="btn btn-secondary mb-4"
-          onClick={SpeechRecognition.stopListening}
-        >
-          Stop Listening
-        </button>
-        <button
-          className="btn btn-danger mb-4"
-          onClick={resetTranscript}
-        >
-          Reset Transcript
-        </button>
-        <div className="text-lg text-gray-700 mb-4">Transcript: {transcript}</div>
-        <div className="text-lg text-gray-700 mb-4">Counts:</div>
-        <ul>
-          {Object.keys(counts).map((key) => (
-            <li key={key} className="text-lg text-gray-700">{key}: {counts[key]}</li>
-          ))}
-        </ul>
-        <div className="text-lg text-gray-700 mb-4">Session Count: {sessionCount}</div>
-        <div className="text-lg text-gray-700 mb-4">Persistent Count: {persistentCount}</div>
-        <div className="text-lg text-gray-700 mb-4">History:</div>
-        <div className="mb-4">
-          <label className="mr-2">Filter by type:</label>
-          <select value={filter} onChange={(e) => setFilter(e.target.value)} className="select select-bordered">
-            <option value="all">All</option>
+    <>
+      <ErrorBoundary>
+        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
+          <h1 className="text-5xl font-bold mb-4">Voice-Activated Counting</h1>
+          <p className="text-lg text-gray-700 mb-4">This app recognizes voice commands to count different types of containers.</p>
+          <button
+            className="btn btn-primary mb-4"
+            onClick={SpeechRecognition.startListening}
+          >
+            Start Listening
+          </button>
+          <button
+            className="btn btn-secondary mb-4"
+            onClick={SpeechRecognition.stopListening}
+          >
+            Stop Listening
+          </button>
+          <button
+            className="btn btn-danger mb-4"
+            onClick={resetTranscript}
+          >
+            Reset Transcript
+          </button>
+          <div className="text-lg text-gray-700 mb-4">Transcript: {transcript}</div>
+          <div className="text-lg text-gray-700 mb-4">Counts:</div>
+          <ul>
             {Object.keys(counts).map((key) => (
-              <option key={key} value={key}>{key}</option>
+              <li key={key} className="text-lg text-gray-700">{key}: {counts[key]}</li>
             ))}
-          </select>
-        </div>
-        <button
-          className="btn btn-warning mb-4"
-          onClick={clearHistory}
-        >
-          Clear History
-        </button>
-        <button
-          className="btn btn-success mb-4"
-          onClick={generateCsvData}
-        >
-          Generate CSV
-        </button>
-        <CSVLink
-          data={csvData}
-          filename={`count_history_${filter}.csv`}
-          className="btn btn-info mb-4"
-          target="_blank"
-        >
-          Export CSV
-        </CSVLink>
-        <ul>
-          {filteredHistory.map((entry, index) => (
-            <li key={index} className="text-lg text-gray-700">{entry.timestamp} - {entry.type}: {entry.count}</li>
-          ))}
-        </ul>
-        {isLocked && (
-          <div className="fixed inset-0 bg-black bg-opacity-75 flex flex-col items-center justify-center text-white">
-            <h2 className="text-4xl mb-4">Lock Screen</h2>
-            <div className="text-lg mb-4">Counts:</div>
-            <ul>
+          </ul>
+          <div className="text-lg text-gray-700 mb-4">Session Count: {sessionCount}</div>
+          <div className="text-lg text-gray-700 mb-4">Persistent Count: {persistentCount}</div>
+          <div className="text-lg text-gray-700 mb-4">History:</div>
+          <div className="mb-4">
+            <label className="mr-2">Filter by type:</label>
+            <select value={filter} onChange={(e) => setFilter(e.target.value)} className="select select-bordered">
+              <option value="all">All</option>
               {Object.keys(counts).map((key) => (
-                <li key={key} className="text-lg">{key}: {counts[key]}</li>
+                <option key={key} value={key}>{key}</option>
               ))}
-            </ul>
+            </select>
           </div>
-        )}
-        <div className="w-full max-w-4xl mt-8">
-          <div className="bg-white shadow-md rounded-lg p-6 mb-4">
-            <h2 className="text-2xl font-bold mb-4">Voice Commands Settings</h2>
-            <button
-              className="btn btn-outline mb-4"
-              onClick={() => setShowVoiceSettings(!showVoiceSettings)}
-            >
-              {showVoiceSettings ? 'Hide' : 'Show'} Settings
-            </button>
-            {showVoiceSettings && (
-              <div className="space-y-4">
-                <p className="text-gray-700">Configure your voice commands here.</p>
-                {/* Add more settings related to voice commands here */}
-              </div>
-            )}
-          </div>
-          <div className="bg-white shadow-md rounded-lg p-6 mb-4">
-            <h2 className="text-2xl font-bold mb-4">History Tracking Settings</h2>
-            <button
-              className="btn btn-outline mb-4"
-              onClick={() => setShowHistorySettings(!showHistorySettings)}
-            >
-              {showHistorySettings ? 'Hide' : 'Show'} Settings
-            </button>
-            {showHistorySettings && (
-              <div className="space-y-4">
-                <p className="text-gray-700">Configure your history tracking here.</p>
-                {/* Add more settings related to history tracking here */}
-              </div>
-            )}
-          </div>
-          <div className="bg-white shadow-md rounded-lg p-6 mb-4">
-            <h2 className="text-2xl font-bold mb-4">Data Export Settings</h2>
-            <button
-              className="btn btn-outline mb-4"
-              onClick={() => setShowExportSettings(!showExportSettings)}
-            >
-              {showExportSettings ? 'Hide' : 'Show'} Settings
-            </button>
-            {showExportSettings && (
-              <div className="space-y-4">
-                <p className="text-gray-700">Configure your data export settings here.</p>
-                {/* Add more settings related to data export here */}
-              </div>
-            )}
-          </div>
-          <div className="bg-white shadow-md rounded-lg p-6 mb-4">
-            <h2 className="text-2xl font-bold mb-4">Lock Screen Display Settings</h2>
-            <button
-              className="btn btn-outline mb-4"
-              onClick={() => setShowLockScreenSettings(!showLockScreenSettings)}
-            >
-              {showLockScreenSettings ? 'Hide' : 'Show'} Settings
-            </button>
-            {showLockScreenSettings && (
-              <div className="space-y-4">
-                <p className="text-gray-700">Configure your lock screen display settings here.</p>
-                {/* Add more settings related to lock screen display here */}
-              </div>
-            )}
+          <button
+            className="btn btn-warning mb-4"
+            onClick={clearHistory}
+          >
+            Clear History
+          </button>
+          <button
+            className="btn btn-success mb-4"
+            onClick={generateCsvData}
+          >
+            Generate CSV
+          </button>
+          <CSVLink
+            data={csvData}
+            filename={`count_history_${filter}.csv`}
+            className="btn btn-info mb-4"
+            target="_blank"
+          >
+            Export CSV
+          </CSVLink>
+          <ul>
+            {filteredHistory.map((entry, index) => (
+              <li key={index} className="text-lg text-gray-700">{entry.timestamp} - {entry.type}: {entry.count}</li>
+            ))}
+          </ul>
+          {isLocked && (
+            <div className="fixed inset-0 bg-black bg-opacity-75 flex flex-col items-center justify-center text-white">
+              <h2 className="text-4xl mb-4">Lock Screen</h2>
+              <div className="text-lg mb-4">Counts:</div>
+              <ul>
+                {Object.keys(counts).map((key) => (
+                  <li key={key} className="text-lg">{key}: {counts[key]}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <div className="w-full max-w-4xl mt-8">
+            <div className="bg-white shadow-md rounded-lg p-6 mb-4">
+              <h2 className="text-2xl font-bold mb-4">Voice Commands Settings</h2>
+              <button
+                className="btn btn-outline mb-4"
+                onClick={() => setShowVoiceSettings(!showVoiceSettings)}
+              >
+                {showVoiceSettings ? 'Hide' : 'Show'} Settings
+              </button>
+              {showVoiceSettings && (
+                <div className="space-y-4">
+                  <p className="text-gray-700">Configure your voice commands here.</p>
+                  {/* Add more settings related to voice commands here */}
+                </div>
+              )}
+            </div>
+            <div className="bg-white shadow-md rounded-lg p-6 mb-4">
+              <h2 className="text-2xl font-bold mb-4">History Tracking Settings</h2>
+              <button
+                className="btn btn-outline mb-4"
+                onClick={() => setShowHistorySettings(!showHistorySettings)}
+              >
+                {showHistorySettings ? 'Hide' : 'Show'} Settings
+              </button>
+              {showHistorySettings && (
+                <div className="space-y-4">
+                  <p className="text-gray-700">Configure your history tracking here.</p>
+                  {/* Add more settings related to history tracking here */}
+                </div>
+              )}
+            </div>
+            <div className="bg-white shadow-md rounded-lg p-6 mb-4">
+              <h2 className="text-2xl font-bold mb-4">Data Export Settings</h2>
+              <button
+                className="btn btn-outline mb-4"
+                onClick={() => setShowExportSettings(!showExportSettings)}
+              >
+                {showExportSettings ? 'Hide' : 'Show'} Settings
+              </button>
+              {showExportSettings && (
+                <div className="space-y-4">
+                  <p className="text-gray-700">Configure your data export settings here.</p>
+                  {/* Add more settings related to data export here */}
+                </div>
+              )}
+            </div>
+            <div className="bg-white shadow-md rounded-lg p-6 mb-4">
+              <h2 className="text-2xl font-bold mb-4">Lock Screen Display Settings</h2>
+              <button
+                className="btn btn-outline mb-4"
+                onClick={() => setShowLockScreenSettings(!showLockScreenSettings)}
+              >
+                {showLockScreenSettings ? 'Hide' : 'Show'} Settings
+              </button>
+              {showLockScreenSettings && (
+                <div className="space-y-4">
+                  <p className="text-gray-700">Configure your lock screen display settings here.</p>
+                  {/* Add more settings related to lock screen display here */}
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    </ErrorBoundary>
+      </ErrorBoundary>
+    </>
   );
 }
 
