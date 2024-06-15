@@ -1,14 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import { CSVLink } from "react-csv";
+import { supabase } from './integrations/supabase/index.js';
 
 function App() {
-  const [counts, setCounts] = useState({ PET: 0, HDP: 0, glass: 0, carton: 0 });
+  const [counts, setCounts] = useState({ PET: 0, HDP: 0, glass: 0, carton: 0, can: 0 });
   const [history, setHistory] = useState([]);
   const [filter, setFilter] = useState('all');
   const [csvData, setCsvData] = useState([]);
   const [lockout, setLockout] = useState(null);
   const [isLocked, setIsLocked] = useState(false);
+  const [sessionCount, setSessionCount] = useState(0);
+  const [persistentCount, setPersistentCount] = useState(0);
+
+  useEffect(() => {
+    const fetchPersistentCount = async () => {
+      const { data, error } = await supabase
+        .from('persistent_counts')
+        .select('count')
+        .single();
+      if (data) {
+        setPersistentCount(data.count);
+      }
+    };
+    fetchPersistentCount();
+  }, []);
+
+  const updatePersistentCount = async (newCount) => {
+    const { data, error } = await supabase
+      .from('persistent_counts')
+      .update({ count: newCount })
+      .eq('id', 1);
+    if (error) {
+      console.error('Error updating persistent count:', error);
+    }
+  };
 
   const commands = [
     {
@@ -18,29 +44,76 @@ function App() {
     {
       command: 'count :number *',
       callback: (number, type) => {
-        if (counts.hasOwnProperty(type)) {
-          const newCounts = { ...counts, [type]: counts[type] + parseInt(number) };
+        const normalizedType = type.toLowerCase();
+        const typeMapping = {
+          'pet': 'PET',
+          'pet 1 plastic bottles': 'PET',
+          'hdp': 'HDP',
+          'hdpe 2 plastic bottles': 'HDP',
+          'glass': 'glass',
+          'glass containers': 'glass',
+          'carton': 'carton',
+          'cardboard cartons': 'carton',
+          'can': 'can',
+          'aluminum cans': 'can'
+        };
+        const containerType = typeMapping[normalizedType];
+        if (containerType && counts.hasOwnProperty(containerType)) {
+          const newCounts = { ...counts, [containerType]: counts[containerType] + parseInt(number) };
           setCounts(newCounts);
-          setHistory([...history, { type, count: newCounts[type], timestamp: new Date().toLocaleString() }]);
+          setHistory([...history, { type: containerType, count: newCounts[containerType], timestamp: new Date().toLocaleString() }]);
+          const newSessionCount = sessionCount + parseInt(number);
+          setSessionCount(newSessionCount);
+          const newPersistentCount = persistentCount + parseInt(number);
+          setPersistentCount(newPersistentCount);
+          updatePersistentCount(newPersistentCount);
         }
       }
     },
     {
       command: 'reset *',
       callback: (type) => {
-        if (counts.hasOwnProperty(type)) {
-          const newCounts = { ...counts, [type]: 0 };
+        const normalizedType = type.toLowerCase();
+        const typeMapping = {
+          'pet': 'PET',
+          'pet 1 plastic bottles': 'PET',
+          'hdp': 'HDP',
+          'hdpe 2 plastic bottles': 'HDP',
+          'glass': 'glass',
+          'glass containers': 'glass',
+          'carton': 'carton',
+          'cardboard cartons': 'carton',
+          'can': 'can',
+          'aluminum cans': 'can'
+        };
+        const containerType = typeMapping[normalizedType];
+        if (containerType && counts.hasOwnProperty(containerType)) {
+          const newCounts = { ...counts, [containerType]: 0 };
           setCounts(newCounts);
-          setHistory([...history, { type, count: 0, timestamp: new Date().toLocaleString() }]);
+          setHistory([...history, { type: containerType, count: 0, timestamp: new Date().toLocaleString() }]);
         }
       }
     },
     {
       command: 'lock out *',
       callback: (type) => {
-        if (counts.hasOwnProperty(type)) {
-          setLockout(type);
-          console.log(`Locked out ${type}`);
+        const normalizedType = type.toLowerCase();
+        const typeMapping = {
+          'pet': 'PET',
+          'pet 1 plastic bottles': 'PET',
+          'hdp': 'HDP',
+          'hdpe 2 plastic bottles': 'HDP',
+          'glass': 'glass',
+          'glass containers': 'glass',
+          'carton': 'carton',
+          'cardboard cartons': 'carton',
+          'can': 'can',
+          'aluminum cans': 'can'
+        };
+        const containerType = typeMapping[normalizedType];
+        if (containerType && counts.hasOwnProperty(containerType)) {
+          setLockout(containerType);
+          console.log(`Locked out ${containerType}`);
           // Add audible noise indication here
         }
       }
@@ -48,9 +121,23 @@ function App() {
     {
       command: 'unlock *',
       callback: (type) => {
-        if (lockout === type) {
+        const normalizedType = type.toLowerCase();
+        const typeMapping = {
+          'pet': 'PET',
+          'pet 1 plastic bottles': 'PET',
+          'hdp': 'HDP',
+          'hdpe 2 plastic bottles': 'HDP',
+          'glass': 'glass',
+          'glass containers': 'glass',
+          'carton': 'carton',
+          'cardboard cartons': 'carton',
+          'can': 'can',
+          'aluminum cans': 'can'
+        };
+        const containerType = typeMapping[normalizedType];
+        if (lockout === containerType) {
           setLockout(null);
-          console.log(`Unlocked ${type}`);
+          console.log(`Unlocked ${containerType}`);
           // Add audible noise indication here
         }
       }
@@ -62,6 +149,11 @@ function App() {
           const newCounts = { ...counts, [lockout]: counts[lockout] + parseInt(number) };
           setCounts(newCounts);
           setHistory([...history, { type: lockout, count: newCounts[lockout], timestamp: new Date().toLocaleString() }]);
+          const newSessionCount = sessionCount + parseInt(number);
+          setSessionCount(newSessionCount);
+          const newPersistentCount = persistentCount + parseInt(number);
+          setPersistentCount(newPersistentCount);
+          updatePersistentCount(newPersistentCount);
         }
       }
     },
@@ -132,6 +224,8 @@ function App() {
           <li key={key} className="text-lg text-gray-700">{key}: {counts[key]}</li>
         ))}
       </ul>
+      <div className="text-lg text-gray-700 mb-4">Session Count: {sessionCount}</div>
+      <div className="text-lg text-gray-700 mb-4">Persistent Count: {persistentCount}</div>
       <div className="text-lg text-gray-700 mb-4">History:</div>
       <div className="mb-4">
         <label className="mr-2">Filter by type:</label>
