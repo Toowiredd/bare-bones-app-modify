@@ -42,6 +42,16 @@ table: likes
     user_id: number // foreign key to users
     post_id: number // foreign key to posts
 
+table: profiles
+    id: number
+    user_id: number // foreign key to users
+    bio: string
+
+table: followers
+    id: number
+    user_id: number // foreign key to users
+    follower_id: number // foreign key to users
+
 */
 
 // Hooks for users table
@@ -194,6 +204,78 @@ export const useDeleteLike = () => {
         mutationFn: (id) => fromSupabase(supabase.from('likes').delete().eq('id', id)),
         onSuccess: () => {
             queryClient.invalidateQueries('likes');
+        },
+    });
+};
+
+// Hooks for profiles table
+export const useProfiles = () => useQuery({
+    queryKey: ['profiles'],
+    queryFn: () => fromSupabase(supabase.from('profiles').select('*')),
+});
+
+export const useProfile = (id) => useQuery({
+    queryKey: ['profiles', id],
+    queryFn: () => fromSupabase(supabase.from('profiles').select('*').eq('id', id).single()),
+});
+
+export const useAddProfile = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (newProfile) => fromSupabase(supabase.from('profiles').insert([{ user_id: newProfile.user_id, bio: newProfile.bio }])),
+        onSuccess: () => {
+            queryClient.invalidateQueries('profiles');
+        },
+    });
+};
+
+export const useUpdateProfile = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (updatedProfile) => fromSupabase(supabase.from('profiles').update({ user_id: updatedProfile.user_id, bio: updatedProfile.bio }).eq('id', updatedProfile.id)),
+        onSuccess: () => {
+            queryClient.invalidateQueries('profiles');
+        },
+    });
+};
+
+export const useDeleteProfile = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (id) => fromSupabase(supabase.from('profiles').delete().eq('id', id)),
+        onSuccess: () => {
+            queryClient.invalidateQueries('profiles');
+        },
+    });
+};
+
+// Hooks for followers table
+export const useFollowers = () => useQuery({
+    queryKey: ['followers'],
+    queryFn: () => fromSupabase(supabase.from('followers').select('*')),
+});
+
+export const useFollower = (id) => useQuery({
+    queryKey: ['followers', id],
+    queryFn: () => fromSupabase(supabase.from('followers').select('*').eq('id', id).single()),
+});
+
+export const useAddFollower = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (newFollower) => fromSupabase(supabase.from('followers').insert([{ user_id: newFollower.user_id, follower_id: newFollower.follower_id }])),
+        onSuccess: () => {
+            queryClient.invalidateQueries('followers');
+        },
+    });
+};
+
+export const useDeleteFollower = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (id) => fromSupabase(supabase.from('followers').delete().eq('id', id)),
+        onSuccess: () => {
+            queryClient.invalidateQueries('followers');
         },
     });
 };
