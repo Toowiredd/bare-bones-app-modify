@@ -19,86 +19,46 @@ const fromSupabase = async (query) => {
 
 /* supabase integration types
 
-table: persistent_counts
-    id: number
-    count: number
+// EXAMPLE TYPES SECTION
+// DO NOT USE TYPESCRIPT
 
-table: history
+table: foos
     id: number
-    type: string
-    count: number
-    timestamp: string
+    title: string
 
+table: bars
+    id: number
+    foo_id: number // foreign key to foos
+	
 */
 
-// Hooks for persistent_counts table
-export const usePersistentCounts = () => useQuery({
-    queryKey: ['persistent_counts'],
-    queryFn: () => fromSupabase(supabase.from('persistent_counts').select('*')),
-});
+// Example hook for models
 
-export const useAddPersistentCount = () => {
+export const useFoo = ()=> useQuery({
+    queryKey: ['foos'],
+    queryFn: fromSupabase(supabase.from('foos')),
+})
+export const useAddFoo = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (newCount) => fromSupabase(supabase.from('persistent_counts').insert([newCount])),
-        onSuccess: () => {
-            queryClient.invalidateQueries('persistent_counts');
+        mutationFn: (newFoo)=> fromSupabase(supabase.from('foos').insert([{ title: newFoo.title }])),
+        onSuccess: ()=> {
+            queryClient.invalidateQueries('foos');
         },
     });
 };
 
-export const useUpdatePersistentCount = () => {
+export const useBar = ()=> useQuery({
+    queryKey: ['bars'],
+    queryFn: fromSupabase(supabase.from('bars')),
+})
+export const useAddBar = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (updatedCount) => fromSupabase(supabase.from('persistent_counts').update(updatedCount).eq('id', updatedCount.id)),
-        onSuccess: () => {
-            queryClient.invalidateQueries('persistent_counts');
+        mutationFn: (newBar)=> fromSupabase(supabase.from('bars').insert([{ foo_id: newBar.foo_id }])),
+        onSuccess: ()=> {
+            queryClient.invalidateQueries('bars');
         },
     });
 };
 
-export const useDeletePersistentCount = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: (id) => fromSupabase(supabase.from('persistent_counts').delete().eq('id', id)),
-        onSuccess: () => {
-            queryClient.invalidateQueries('persistent_counts');
-        },
-    });
-};
-
-// Hooks for history table
-export const useHistory = () => useQuery({
-    queryKey: ['history'],
-    queryFn: () => fromSupabase(supabase.from('history').select('*')),
-});
-
-export const useAddHistory = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: (newHistory) => fromSupabase(supabase.from('history').insert([newHistory])),
-        onSuccess: () => {
-            queryClient.invalidateQueries('history');
-        },
-    });
-};
-
-export const useUpdateHistory = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: (updatedHistory) => fromSupabase(supabase.from('history').update(updatedHistory).eq('id', updatedHistory.id)),
-        onSuccess: () => {
-            queryClient.invalidateQueries('history');
-        },
-    });
-};
-
-export const useDeleteHistory = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: (id) => fromSupabase(supabase.from('history').delete().eq('id', id)),
-        onSuccess: () => {
-            queryClient.invalidateQueries('history');
-        },
-    });
-};
