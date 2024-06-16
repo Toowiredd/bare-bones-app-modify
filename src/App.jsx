@@ -43,34 +43,24 @@ function App() {
 
   useEffect(() => {
     const fetchPersistentCount = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('persistent_counts')
-          .select('count')
-          .single();
-        if (data) {
-          setPersistentCount(data.count);
-        } else if (error) {
-          console.error('Error fetching persistent count:', error);
-        }
-      } catch (error) {
-        console.error('Unexpected error fetching persistent count:', error);
+      const { data, error } = await supabase
+        .from('persistent_counts')
+        .select('count')
+        .single();
+      if (data) {
+        setPersistentCount(data.count);
       }
     };
     fetchPersistentCount();
   }, []);
 
   const updatePersistentCount = async (newCount) => {
-    try {
-      const { data, error } = await supabase
-        .from('persistent_counts')
-        .update({ count: newCount })
-        .eq('id', 1);
-      if (error) {
-        console.error('Error updating persistent count:', error);
-      }
-    } catch (error) {
-      console.error('Unexpected error updating persistent count:', error);
+    const { data, error } = await supabase
+      .from('persistent_counts')
+      .update({ count: newCount })
+      .eq('id', 1);
+    if (error) {
+      console.error('Error updating persistent count:', error);
     }
   };
 
