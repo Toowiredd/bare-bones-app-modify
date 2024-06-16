@@ -311,3 +311,157 @@ export const useDeleteFollower = () => {
         },
     });
 };
+
+// Hooks for messages table
+export const useMessages = () => useQuery({
+    queryKey: ['messages'],
+    queryFn: () => fromSupabase(supabase.from('messages').select('*')),
+});
+
+export const useMessage = (id) => useQuery({
+    queryKey: ['messages', id],
+    queryFn: () => fromSupabase(supabase.from('messages').select('*').eq('id', id).single()),
+});
+
+export const useAddMessage = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (newMessage) => fromSupabase(supabase.from('messages').insert([{ sender_id: newMessage.sender_id, receiver_id: newMessage.receiver_id, content: newMessage.content }])),
+        onSuccess: () => {
+            queryClient.invalidateQueries('messages');
+        },
+    });
+};
+
+export const useUpdateMessage = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (updatedMessage) => fromSupabase(supabase.from('messages').update({ sender_id: updatedMessage.sender_id, receiver_id: updatedMessage.receiver_id, content: updatedMessage.content }).eq('id', updatedMessage.id)),
+        onSuccess: () => {
+            queryClient.invalidateQueries('messages');
+        },
+    });
+};
+
+export const useDeleteMessage = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (id) => fromSupabase(supabase.from('messages').delete().eq('id', id)),
+        onSuccess: () => {
+            queryClient.invalidateQueries('messages');
+        },
+    });
+};
+
+// Hooks for notifications table
+export const useNotifications = () => useQuery({
+    queryKey: ['notifications'],
+    queryFn: () => fromSupabase(supabase.from('notifications').select('*')),
+});
+
+export const useNotification = (id) => useQuery({
+    queryKey: ['notifications', id],
+    queryFn: () => fromSupabase(supabase.from('notifications').select('*').eq('id', id).single()),
+});
+
+export const useAddNotification = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (newNotification) => fromSupabase(supabase.from('notifications').insert([{ user_id: newNotification.user_id, message: newNotification.message, read: newNotification.read }])),
+        onSuccess: () => {
+            queryClient.invalidateQueries('notifications');
+        },
+    });
+};
+
+export const useUpdateNotification = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (updatedNotification) => fromSupabase(supabase.from('notifications').update({ user_id: updatedNotification.user_id, message: updatedNotification.message, read: updatedNotification.read }).eq('id', updatedNotification.id)),
+        onSuccess: () => {
+            queryClient.invalidateQueries('notifications');
+        },
+    });
+};
+
+export const useDeleteNotification = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (id) => fromSupabase(supabase.from('notifications').delete().eq('id', id)),
+        onSuccess: () => {
+            queryClient.invalidateQueries('notifications');
+        },
+    });
+};
+
+// Hooks for events table
+export const useEvents = () => useQuery({
+    queryKey: ['events'],
+    queryFn: () => fromSupabase(supabase.from('events').select('*')),
+});
+
+export const useEvent = (id) => useQuery({
+    queryKey: ['events', id],
+    queryFn: () => fromSupabase(supabase.from('events').select('*').eq('id', id).single()),
+});
+
+export const useAddEvent = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (newEvent) => fromSupabase(supabase.from('events').insert([{ name: newEvent.name, date: newEvent.date, location: newEvent.location }])),
+        onSuccess: () => {
+            queryClient.invalidateQueries('events');
+        },
+    });
+};
+
+export const useUpdateEvent = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (updatedEvent) => fromSupabase(supabase.from('events').update({ name: updatedEvent.name, date: updatedEvent.date, location: updatedEvent.location }).eq('id', updatedEvent.id)),
+        onSuccess: () => {
+            queryClient.invalidateQueries('events');
+        },
+    });
+};
+
+export const useDeleteEvent = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (id) => fromSupabase(supabase.from('events').delete().eq('id', id)),
+        onSuccess: () => {
+            queryClient.invalidateQueries('events');
+        },
+    });
+};
+
+// Hooks for event_registrations table
+export const useEventRegistrations = () => useQuery({
+    queryKey: ['event_registrations'],
+    queryFn: () => fromSupabase(supabase.from('event_registrations').select('*')),
+});
+
+export const useEventRegistration = (id) => useQuery({
+    queryKey: ['event_registrations', id],
+    queryFn: () => fromSupabase(supabase.from('event_registrations').select('*').eq('id', id).single()),
+});
+
+export const useAddEventRegistration = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (newEventRegistration) => fromSupabase(supabase.from('event_registrations').insert([{ event_id: newEventRegistration.event_id, user_id: newEventRegistration.user_id }])),
+        onSuccess: () => {
+            queryClient.invalidateQueries('event_registrations');
+        },
+    });
+};
+
+export const useDeleteEventRegistration = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (id) => fromSupabase(supabase.from('event_registrations').delete().eq('id', id)),
+        onSuccess: () => {
+            queryClient.invalidateQueries('event_registrations');
+        },
+    });
+};
