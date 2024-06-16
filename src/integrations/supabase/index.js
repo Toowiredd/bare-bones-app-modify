@@ -73,6 +73,17 @@ table: notifications
     message: string
     read: boolean
 
+table: events
+    id: number
+    name: string
+    date: string
+    location: string
+
+table: event_registrations
+    id: number
+    event_id: number // foreign key to events
+    user_id: number // foreign key to users
+
 */
 
 // Hooks for users table
