@@ -8,16 +8,25 @@ export const supabase = createClient(supabaseUrl, supabaseKey);
 
 export const queryClient = new QueryClient();
 export function SupabaseProvider({ children }) {
-    return React.createElement(QueryClientProvider, { client: queryClient }, children);
+    return (
+        <QueryClientProvider client={queryClient}>
+            {children}
+        </QueryClientProvider>
+    );
 }
 
 const fromSupabase = async (query) => {
-    const { data, error } = await query;
-    if (error) {
-        console.error(error);
-        throw new Error(error.message);
+    try {
+        const { data, error } = await query;
+        if (error) {
+            console.error(error);
+            throw new Error(error.message);
+        }
+        return data;
+    } catch (error) {
+        console.error('Unexpected error:', error);
+        throw new Error('An unexpected error occurred');
     }
-    return data;
 };
 
 /* supabase integration types
@@ -51,6 +60,18 @@ table: followers
     id: number
     user_id: number // foreign key to users
     follower_id: number // foreign key to users
+
+table: messages
+    id: number
+    sender_id: number // foreign key to users
+    receiver_id: number // foreign key to users
+    content: string
+
+table: notifications
+    id: number
+    user_id: number // foreign key to users
+    message: string
+    read: boolean
 
 */
 
