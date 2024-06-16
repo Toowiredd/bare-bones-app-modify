@@ -22,142 +22,95 @@ const fromSupabase = async (query) => {
 
 /* supabase integration types
 
-table: users
+table: persistent_counts
     id: number
-    username: string
-    email: string
+    count: number
 
-table: posts
+table: another_table
     id: number
-    user_id: number // foreign key to users
-    content: string
-
-table: comments
-    id: number
-    post_id: number // foreign key to posts
-    comment: string
+    name: string
+    description: string
 
 */
 
-// Hooks for users table
-export const useUsers = () => useQuery({
-    queryKey: ['users'],
-    queryFn: () => fromSupabase(supabase.from('users').select('*')),
+// Hooks for persistent_counts table
+export const usePersistentCounts = () => useQuery({
+    queryKey: ['persistent_counts'],
+    queryFn: () => fromSupabase(supabase.from('persistent_counts').select('*')),
 });
 
-export const useUser = (id) => useQuery({
-    queryKey: ['users', id],
-    queryFn: () => fromSupabase(supabase.from('users').select('*').eq('id', id).single()),
+export const usePersistentCount = (id) => useQuery({
+    queryKey: ['persistent_counts', id],
+    queryFn: () => fromSupabase(supabase.from('persistent_counts').select('*').eq('id', id).single()),
 });
 
-export const useAddUser = () => {
+export const useAddPersistentCount = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (newUser) => fromSupabase(supabase.from('users').insert([newUser])),
+        mutationFn: (newCount) => fromSupabase(supabase.from('persistent_counts').insert([newCount])),
         onSuccess: () => {
-            queryClient.invalidateQueries('users');
+            queryClient.invalidateQueries('persistent_counts');
         },
     });
 };
 
-export const useUpdateUser = () => {
+export const useUpdatePersistentCount = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (updatedUser) => fromSupabase(supabase.from('users').update(updatedUser).eq('id', updatedUser.id)),
+        mutationFn: (updatedCount) => fromSupabase(supabase.from('persistent_counts').update(updatedCount).eq('id', updatedCount.id)),
         onSuccess: () => {
-            queryClient.invalidateQueries('users');
+            queryClient.invalidateQueries('persistent_counts');
         },
     });
 };
 
-export const useDeleteUser = () => {
+export const useDeletePersistentCount = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (id) => fromSupabase(supabase.from('users').delete().eq('id', id)),
+        mutationFn: (id) => fromSupabase(supabase.from('persistent_counts').delete().eq('id', id)),
         onSuccess: () => {
-            queryClient.invalidateQueries('users');
+            queryClient.invalidateQueries('persistent_counts');
         },
     });
 };
 
-// Hooks for posts table
-export const usePosts = () => useQuery({
-    queryKey: ['posts'],
-    queryFn: () => fromSupabase(supabase.from('posts').select('*')),
+// Hooks for another_table table
+export const useAnotherTable = () => useQuery({
+    queryKey: ['another_table'],
+    queryFn: () => fromSupabase(supabase.from('another_table').select('*')),
 });
 
-export const usePost = (id) => useQuery({
-    queryKey: ['posts', id],
-    queryFn: () => fromSupabase(supabase.from('posts').select('*').eq('id', id).single()),
+export const useAnotherTableItem = (id) => useQuery({
+    queryKey: ['another_table', id],
+    queryFn: () => fromSupabase(supabase.from('another_table').select('*').eq('id', id).single()),
 });
 
-export const useAddPost = () => {
+export const useAddAnotherTableItem = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (newPost) => fromSupabase(supabase.from('posts').insert([newPost])),
+        mutationFn: (newItem) => fromSupabase(supabase.from('another_table').insert([newItem])),
         onSuccess: () => {
-            queryClient.invalidateQueries('posts');
+            queryClient.invalidateQueries('another_table');
         },
     });
 };
 
-export const useUpdatePost = () => {
+export const useUpdateAnotherTableItem = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (updatedPost) => fromSupabase(supabase.from('posts').update(updatedPost).eq('id', updatedPost.id)),
+        mutationFn: (updatedItem) => fromSupabase(supabase.from('another_table').update(updatedItem).eq('id', updatedItem.id)),
         onSuccess: () => {
-            queryClient.invalidateQueries('posts');
+            queryClient.invalidateQueries('another_table');
         },
     });
 };
 
-export const useDeletePost = () => {
+export const useDeleteAnotherTableItem = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (id) => fromSupabase(supabase.from('posts').delete().eq('id', id)),
+        mutationFn: (id) => fromSupabase(supabase.from('another_table').delete().eq('id', id)),
         onSuccess: () => {
-            queryClient.invalidateQueries('posts');
-        },
-    });
-};
-
-// Hooks for comments table
-export const useComments = () => useQuery({
-    queryKey: ['comments'],
-    queryFn: () => fromSupabase(supabase.from('comments').select('*')),
-});
-
-export const useComment = (id) => useQuery({
-    queryKey: ['comments', id],
-    queryFn: () => fromSupabase(supabase.from('comments').select('*').eq('id', id).single()),
-});
-
-export const useAddComment = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: (newComment) => fromSupabase(supabase.from('comments').insert([newComment])),
-        onSuccess: () => {
-            queryClient.invalidateQueries('comments');
-        },
-    });
-};
-
-export const useUpdateComment = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: (updatedComment) => fromSupabase(supabase.from('comments').update(updatedComment).eq('id', updatedComment.id)),
-        onSuccess: () => {
-            queryClient.invalidateQueries('comments');
-        },
-    });
-};
-
-export const useDeleteComment = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: (id) => fromSupabase(supabase.from('comments').delete().eq('id', id)),
-        onSuccess: () => {
-            queryClient.invalidateQueries('comments');
+            queryClient.invalidateQueries('another_table');
         },
     });
 };
