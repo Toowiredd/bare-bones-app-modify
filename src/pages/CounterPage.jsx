@@ -1,8 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 
 const CounterPage = () => {
   const [counts, setCounts] = useState([0, 0, 0, 0, 0]);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [history, setHistory] = useState([]);
+  const { transcript, resetTranscript } = useSpeechRecognition();
+
+  useEffect(() => {
+    if (isCapturing) {
+      SpeechRecognition.startListening({ continuous: true });
+    } else {
+      SpeechRecognition.stopListening();
+    }
+  }, [isCapturing]);
+
+  useEffect(() => {
+    const keywords = ['one', 'two', 'three', 'four', 'five'];
+    const numbers = ['1', '2', '3', '4', '5'];
+
+    const words = transcript.split(' ');
+    words.forEach(word => {
+      const keywordIndex = keywords.indexOf(word.toLowerCase());
+      const numberIndex = numbers.indexOf(word);
+
+      if (keywordIndex !== -1) {
+        handleIncrement(keywordIndex);
+        addToHistory(`Incremented container ${keywordIndex + 1}`);
+      } else if (numberIndex !== -1) {
+        handleIncrement(numberIndex);
+        addToHistory(`Incremented container ${numberIndex + 1}`);
+      }
+    });
+
+    resetTranscript();
+  }, [transcript]);
 
   const handleIncrement = (index) => {
     const newCounts = [...counts];
@@ -20,7 +52,27 @@ const CounterPage = () => {
     setIsCapturing(!isCapturing);
   };
 
+  const addToHistory = (action) => {
+    const timestamp = new Date().toISOString();
+    setHistory([...history, { action, timestamp }]);
+  };
+
+  const clearHistory = () => {
+    setHistory([]);
+  };
+
   const totalCount = counts.reduce((acc, count) => acc + count, 0);
+
+  const exportToCSV = () => {
+    const csvContent = "data:text/csv;charset=utf-8," 
+      + history.map(e => `${e.timestamp},${e.action}`).join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "count_history.csv");
+    document.body.appendChild(link);
+    link.click();
+  };
 
   return (
     <div className="min-h-screen p-4 bg-gray-100">
@@ -45,6 +97,16 @@ const CounterPage = () => {
       <div className="mt-4 p-4 bg-white rounded shadow">
         <h2 className="text-xl font-bold">Total Count</h2>
         <p className="text-lg">{totalCount}</p>
+      </div>
+      <div className="mt-4 p-4 bg-white rounded shadow">
+        <h2 className="text-xl font-bold">History</h2>
+        <button onClick={clearHistory} className="px-4 py-2 bg-red-500 text-white rounded mb-2">Clear History</button>
+        <button onClick={exportToCSV} className="px-4 py-2 bg-green-500 text-white rounded mb-2 ml-2">Export to CSV</button>
+        <ul className="list-disc pl-5">
+          {history.map((entry, index) => (
+            <li key={index}>{`${entry.timestamp} - ${entry.action}`}</li>
+          ))}
+        </ul>
       </div>
     </div>
   );
