@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import WelcomePage from './pages/WelcomePage';
 import CounterPage from './pages/CounterPage';
 import SettingsPage from './pages/SettingsPage';
-import DebuggingPage from './pages/DebuggingPage';
+
 
 function App() {
   return (
@@ -20,17 +20,17 @@ function App() {
             <li>
               <Link to="/settings" className="text-white">Settings</Link>
             </li>
-            <li>
-              <Link to="/debugging" className="text-white">Debugging</Link>
-            </li>
+            
           </ul>
         </nav>
-        <Routes>
-          <Route path="/" element={<WelcomePage />} />
-          <Route path="/counter" element={<CounterPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/debugging" element={<DebuggingPage />} />
-        </Routes>
+        <Suspense fallback={<div>Loading...</div>}>
+          <Routes>
+            <Route path="/" element={<WelcomePage />} />
+            <Route path="/counter" element={<CounterPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            
+          </Routes>
+        </Suspense>
       </div>
     </Router>
   );

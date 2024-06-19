@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const WelcomePage = () => {
+  console.log("WelcomePage component rendered");
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
       <h1 className="text-5xl font-bold mb-4 text-center">Welcome to the Counting App</h1>
