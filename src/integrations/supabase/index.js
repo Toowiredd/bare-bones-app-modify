@@ -34,18 +34,18 @@ const fromSupabase = async (query) => {
 
 export const useEvents = () => useQuery({
     queryKey: ['events'],
-    queryFn: () => fromSupabase(supabase.from('events').select('*')),
+    queryFn: () => fromSupabase(supabase.from('event').select('*')),
 });
 
 export const useEvent = (id) => useQuery({
     queryKey: ['event', id],
-    queryFn: () => fromSupabase(supabase.from('events').select('*').eq('id', id).single()),
+    queryFn: () => fromSupabase(supabase.from('event').select('*').eq('id', id).single()),
 });
 
 export const useAddEvent = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (newEvent) => fromSupabase(supabase.from('events').insert([newEvent])),
+        mutationFn: (newEvent) => fromSupabase(supabase.from('event').insert([newEvent])),
         onSuccess: () => {
             queryClient.invalidateQueries('events');
         },
@@ -55,7 +55,7 @@ export const useAddEvent = () => {
 export const useUpdateEvent = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (updatedEvent) => fromSupabase(supabase.from('events').update(updatedEvent).eq('id', updatedEvent.id)),
+        mutationFn: (updatedEvent) => fromSupabase(supabase.from('event').update(updatedEvent).eq('id', updatedEvent.id)),
         onSuccess: () => {
             queryClient.invalidateQueries('events');
             queryClient.invalidateQueries(['event', updatedEvent.id]);
@@ -66,7 +66,7 @@ export const useUpdateEvent = () => {
 export const useDeleteEvent = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (id) => fromSupabase(supabase.from('events').delete().eq('id', id)),
+        mutationFn: (id) => fromSupabase(supabase.from('event').delete().eq('id', id)),
         onSuccess: () => {
             queryClient.invalidateQueries('events');
         },
