@@ -6,27 +6,32 @@ import { ThemeSupa } from '@supabase/auth-ui-shared';
 
 const SupabaseAuthContext = createContext();
 
-export const SupabaseAuthProvider = ({ children }) => {
-  return (
-    <SupabaseProvider>
-      <SupabaseAuthProviderInner>
-        {children}
-      </SupabaseAuthProviderInner>
-    </SupabaseProvider>
-  );
-}
+export const SupabaseAuthProvider = ({ children }) => (
+  <SupabaseProvider>
+    <SupabaseAuthProviderInner>
+      {children}
+    </SupabaseAuthProviderInner>
+  </SupabaseProvider>
+);
 
-export const SupabaseAuthProviderInner = ({ children }) => {
+const useSupabaseAuthProvider = () => {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
     const getSession = async () => {
       setLoading(true);
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-      setLoading(false);
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) throw error;
+        setSession(session);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
     };
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
@@ -38,27 +43,36 @@ export const SupabaseAuthProviderInner = ({ children }) => {
 
     return () => {
       authListener.subscription.unsubscribe();
-      setLoading(false);
     };
   }, [queryClient]);
 
   const logout = async () => {
-    await supabase.auth.signOut();
-    setSession(null);
-    queryClient.invalidateQueries('user');
-    setLoading(false);
+    setLoading(true);
+    try {
+      await supabase.auth.signOut();
+      setSession(null);
+      queryClient.invalidateQueries('user');
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  return { session, loading, error, logout };
+};
+
+export const SupabaseAuthProviderInner = ({ children }) => {
+  const auth = useSupabaseAuthProvider();
+
   return (
-    <SupabaseAuthContext.Provider value={{ session, loading, logout }}>
+    <SupabaseAuthContext.Provider value={auth}>
       {children}
     </SupabaseAuthContext.Provider>
   );
 };
 
-export const useSupabaseAuth = () => {
-  return useContext(SupabaseAuthContext);
-};
+export const useSupabaseAuth = () => useContext(SupabaseAuthContext);
 
 export const SupabaseAuthUI = () => (
   <Auth
