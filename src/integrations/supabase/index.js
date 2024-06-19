@@ -19,53 +19,89 @@ const fromSupabase = async (query) => {
 
 /* supabase integration types
 
-// EXAMPLE TYPES SECTION
-// DO NOT USE TYPESCRIPT
+### persistent_counts
 
-### foos
+| name    | type        | format | required |
+|---------|-------------|--------|----------|
+| id      | int8        | number | true     |
+| count   | int8        | number | true     |
 
-| name    | type | format | required |
-|---------|------|--------|----------|
-| id      | int8 | number | true     |
-| title   | text | string | true     |
-| date    | date | string | true     |
+### another_table
 
-### bars
+| name    | type        | format | required |
+|---------|-------------|--------|----------|
+| id      | int8        | number | true     |
+| name    | text        | string | true     |
+| value   | int8        | number | true     |
 
-| name    | type | format | required |
-|---------|------|--------|----------|
-| id      | int8 | number | true     |
-| foo_id  | int8 | number | true     |  // foreign key to foos
-	
 */
 
-// Example hook for models
+export const usePersistentCounts = () => useQuery({
+    queryKey: ['persistent_counts'],
+    queryFn: () => fromSupabase(supabase.from('persistent_counts').select('*')),
+});
 
-export const useFoo = ()=> useQuery({
-    queryKey: ['foos'],
-    queryFn: fromSupabase(supabase.from('foos')),
-})
-export const useAddFoo = () => {
+export const useAddPersistentCount = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (newFoo)=> fromSupabase(supabase.from('foos').insert([{ title: newFoo.title }])),
-        onSuccess: ()=> {
-            queryClient.invalidateQueries('foos');
+        mutationFn: (newCount) => fromSupabase(supabase.from('persistent_counts').insert([newCount])),
+        onSuccess: () => {
+            queryClient.invalidateQueries('persistent_counts');
         },
     });
 };
 
-export const useBar = ()=> useQuery({
-    queryKey: ['bars'],
-    queryFn: fromSupabase(supabase.from('bars')),
-})
-export const useAddBar = () => {
+export const useUpdatePersistentCount = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (newBar)=> fromSupabase(supabase.from('bars').insert([{ foo_id: newBar.foo_id }])),
-        onSuccess: ()=> {
-            queryClient.invalidateQueries('bars');
+        mutationFn: (updatedCount) => fromSupabase(supabase.from('persistent_counts').update(updatedCount).eq('id', updatedCount.id)),
+        onSuccess: () => {
+            queryClient.invalidateQueries('persistent_counts');
         },
     });
 };
 
+export const useDeletePersistentCount = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (id) => fromSupabase(supabase.from('persistent_counts').delete().eq('id', id)),
+        onSuccess: () => {
+            queryClient.invalidateQueries('persistent_counts');
+        },
+    });
+};
+
+export const useAnotherTable = () => useQuery({
+    queryKey: ['another_table'],
+    queryFn: () => fromSupabase(supabase.from('another_table').select('*')),
+});
+
+export const useAddAnotherTable = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (newEntry) => fromSupabase(supabase.from('another_table').insert([newEntry])),
+        onSuccess: () => {
+            queryClient.invalidateQueries('another_table');
+        },
+    });
+};
+
+export const useUpdateAnotherTable = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (updatedEntry) => fromSupabase(supabase.from('another_table').update(updatedEntry).eq('id', updatedEntry.id)),
+        onSuccess: () => {
+            queryClient.invalidateQueries('another_table');
+        },
+    });
+};
+
+export const useDeleteAnotherTable = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (id) => fromSupabase(supabase.from('another_table').delete().eq('id', id)),
+        onSuccess: () => {
+            queryClient.invalidateQueries('another_table');
+        },
+    });
+};
