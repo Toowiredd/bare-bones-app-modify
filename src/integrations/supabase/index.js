@@ -19,19 +19,23 @@ const fromSupabase = async (query) => {
 
 /* supabase integration types
 
-table: persistent_counts
-    id: number
-    count: number
+### persistent_counts
 
-table: history
-    id: number
-    type: string
-    count: number
-    timestamp: string
+| name    | type        | format | required |
+|---------|-------------|--------|----------|
+| id      | int8        | number | true     |
+| count   | int8        | number | true     |
+
+### another_table
+
+| name    | type        | format | required |
+|---------|-------------|--------|----------|
+| id      | int8        | number | true     |
+| name    | text        | string | true     |
+| value   | int8        | number | true     |
 
 */
 
-// Hooks for persistent_counts table
 export const usePersistentCounts = () => useQuery({
     queryKey: ['persistent_counts'],
     queryFn: () => fromSupabase(supabase.from('persistent_counts').select('*')),
@@ -67,38 +71,37 @@ export const useDeletePersistentCount = () => {
     });
 };
 
-// Hooks for history table
-export const useHistory = () => useQuery({
-    queryKey: ['history'],
-    queryFn: () => fromSupabase(supabase.from('history').select('*')),
+export const useAnotherTable = () => useQuery({
+    queryKey: ['another_table'],
+    queryFn: () => fromSupabase(supabase.from('another_table').select('*')),
 });
 
-export const useAddHistory = () => {
+export const useAddAnotherTable = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (newHistory) => fromSupabase(supabase.from('history').insert([newHistory])),
+        mutationFn: (newEntry) => fromSupabase(supabase.from('another_table').insert([newEntry])),
         onSuccess: () => {
-            queryClient.invalidateQueries('history');
+            queryClient.invalidateQueries('another_table');
         },
     });
 };
 
-export const useUpdateHistory = () => {
+export const useUpdateAnotherTable = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (updatedHistory) => fromSupabase(supabase.from('history').update(updatedHistory).eq('id', updatedHistory.id)),
+        mutationFn: (updatedEntry) => fromSupabase(supabase.from('another_table').update(updatedEntry).eq('id', updatedEntry.id)),
         onSuccess: () => {
-            queryClient.invalidateQueries('history');
+            queryClient.invalidateQueries('another_table');
         },
     });
 };
 
-export const useDeleteHistory = () => {
+export const useDeleteAnotherTable = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (id) => fromSupabase(supabase.from('history').delete().eq('id', id)),
+        mutationFn: (id) => fromSupabase(supabase.from('another_table').delete().eq('id', id)),
         onSuccess: () => {
-            queryClient.invalidateQueries('history');
+            queryClient.invalidateQueries('another_table');
         },
     });
 };
