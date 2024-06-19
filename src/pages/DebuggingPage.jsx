@@ -6,16 +6,18 @@ const DebuggingPage = () => {
   const [testResults, setTestResults] = useState([]);
   const [filter, setFilter] = useState('all');
   const [notifications, setNotifications] = useState([]);
+  const [isCapturing, setIsCapturing] = useState(false);
 
   useEffect(() => {
-    // Simulate log capture
-    const interval = setInterval(() => {
-      const newLog = { level: 'info', message: 'Sample log message', timestamp: new Date().toISOString() };
-      setLogs((prevLogs) => [...prevLogs, newLog]);
-    }, 5000);
-
+    let interval;
+    if (isCapturing) {
+      interval = setInterval(() => {
+        const newLog = { level: 'info', message: 'Sample log message', timestamp: new Date().toISOString() };
+        setLogs((prevLogs) => [...prevLogs, newLog]);
+      }, 5000);
+    }
     return () => clearInterval(interval);
-  }, []);
+  }, [isCapturing]);
 
   const captureLog = (log) => {
     setLogs([...logs, log]);
@@ -41,6 +43,9 @@ const DebuggingPage = () => {
       <div className="mb-4">
         <button onClick={runTest} className="px-4 py-2 bg-blue-500 text-white rounded">Run Test</button>
         <button onClick={exportLogs} className="px-4 py-2 bg-green-500 text-white rounded ml-2">Export Logs</button>
+        <button onClick={() => setIsCapturing(!isCapturing)} className="px-4 py-2 bg-red-500 text-white rounded ml-2">
+          {isCapturing ? 'Stop Capturing Logs' : 'Start Capturing Logs'}
+        </button>
       </div>
       <div className="mb-4">
         <h2 className="text-2xl font-bold">Logs</h2>
