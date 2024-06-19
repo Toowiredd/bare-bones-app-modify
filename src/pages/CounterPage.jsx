@@ -5,6 +5,8 @@ const CounterPage = () => {
   const [counts, setCounts] = useState([0, 0, 0, 0, 0]);
   const [isCapturing, setIsCapturing] = useState(false);
   const [history, setHistory] = useState([]);
+  const [lockedContainers, setLockedContainers] = useState([false, false, false, false, false]);
+  const [customKeywords, setCustomKeywords] = useState([[], [], [], [], []]);
   const { transcript, resetTranscript } = useSpeechRecognition();
 
   useEffect(() => {
@@ -30,6 +32,13 @@ const CounterPage = () => {
       } else if (numberIndex !== -1) {
         handleIncrement(numberIndex);
         addToHistory(`Incremented container ${numberIndex + 1}`);
+      } else {
+        customKeywords.forEach((keywords, index) => {
+          if (keywords.includes(word.toLowerCase())) {
+            handleIncrement(index);
+            addToHistory(`Incremented container ${index + 1} with custom keyword`);
+          }
+        });
       }
     });
 
@@ -37,15 +46,19 @@ const CounterPage = () => {
   }, [transcript]);
 
   const handleIncrement = (index) => {
-    const newCounts = [...counts];
-    newCounts[index] += 1;
-    setCounts(newCounts);
+    if (!lockedContainers[index]) {
+      const newCounts = [...counts];
+      newCounts[index] += 1;
+      setCounts(newCounts);
+    }
   };
 
   const handleDecrement = (index) => {
-    const newCounts = [...counts];
-    newCounts[index] -= 1;
-    setCounts(newCounts);
+    if (!lockedContainers[index]) {
+      const newCounts = [...counts];
+      newCounts[index] -= 1;
+      setCounts(newCounts);
+    }
   };
 
   const handleStartStopCapture = () => {
@@ -59,6 +72,18 @@ const CounterPage = () => {
 
   const clearHistory = () => {
     setHistory([]);
+  };
+
+  const toggleLockContainer = (index) => {
+    const newLockedContainers = [...lockedContainers];
+    newLockedContainers[index] = !newLockedContainers[index];
+    setLockedContainers(newLockedContainers);
+  };
+
+  const updateCustomKeywords = (index, keywords) => {
+    const newCustomKeywords = [...customKeywords];
+    newCustomKeywords[index] = keywords.split(',').map(keyword => keyword.trim().toLowerCase());
+    setCustomKeywords(newCustomKeywords);
   };
 
   const totalCount = counts.reduce((acc, count) => acc + count, 0);
@@ -90,6 +115,19 @@ const CounterPage = () => {
             <div className="flex space-x-2 mt-2">
               <button onClick={() => handleIncrement(index)} className="px-2 py-1 bg-green-500 text-white rounded">+</button>
               <button onClick={() => handleDecrement(index)} className="px-2 py-1 bg-red-500 text-white rounded">-</button>
+            </div>
+            <div className="mt-2">
+              <button onClick={() => toggleLockContainer(index)} className="px-2 py-1 bg-yellow-500 text-white rounded">
+                {lockedContainers[index] ? 'Unlock' : 'Lock'}
+              </button>
+            </div>
+            <div className="mt-2">
+              <input
+                type="text"
+                placeholder="Custom keywords (comma separated)"
+                onBlur={(e) => updateCustomKeywords(index, e.target.value)}
+                className="px-2 py-1 border rounded w-full"
+              />
             </div>
           </div>
         ))}
