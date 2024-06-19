@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { saveAs } from 'file-saver';
 
 const DebuggingPage = () => {
+  console.log("DebuggingPage component rendered");
+
   const [logs, setLogs] = useState([]);
   const [testResults, setTestResults] = useState([]);
   const [filter, setFilter] = useState('all');

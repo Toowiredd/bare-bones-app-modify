@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 
 const CounterPage = () => {
+  console.log("CounterPage component rendered");
   const [counts, setCounts] = useState([0, 0, 0, 0, 0]);
   const [isCapturing, setIsCapturing] = useState(false);
   const [history, setHistory] = useState([]);
