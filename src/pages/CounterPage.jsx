@@ -1,15 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+import { useAddEvent, useEvents } from '../integrations/supabase/index.js';
 
 const CounterPage = () => {
   console.log("CounterPage component rendered");
+
+  // State variables
   const [counts, setCounts] = useState([0, 0, 0, 0, 0]);
   const [isCapturing, setIsCapturing] = useState(false);
   const [history, setHistory] = useState([]);
   const [lockedContainers, setLockedContainers] = useState([false, false, false, false, false]);
   const [customKeywords, setCustomKeywords] = useState([[], [], [], [], []]);
   const { transcript, resetTranscript } = useSpeechRecognition();
+  const { data: events, isLoading, error } = useEvents();
+  const addEvent = useAddEvent();
 
+  // Effect to start/stop speech recognition
   useEffect(() => {
     if (isCapturing) {
       SpeechRecognition.startListening({ continuous: true });
@@ -18,6 +24,7 @@ const CounterPage = () => {
     }
   }, [isCapturing]);
 
+  // Effect to process transcript
   useEffect(() => {
     const keywords = ['one', 'two', 'three', 'four', 'five'];
     const numbers = ['1', '2', '3', '4', '5'];
@@ -46,49 +53,60 @@ const CounterPage = () => {
     resetTranscript();
   }, [transcript]);
 
+  // Function to handle increment
   const handleIncrement = (index) => {
     if (!lockedContainers[index]) {
       const newCounts = [...counts];
       newCounts[index] += 1;
       setCounts(newCounts);
+      addEvent.mutate({ name: `Incremented container ${index + 1}`, date: new Date().toISOString() });
     }
   };
 
+  // Function to handle decrement
   const handleDecrement = (index) => {
     if (!lockedContainers[index]) {
       const newCounts = [...counts];
       newCounts[index] -= 1;
       setCounts(newCounts);
+      addEvent.mutate({ name: `Decremented container ${index + 1}`, date: new Date().toISOString() });
     }
   };
 
+  // Function to start/stop capture
   const handleStartStopCapture = () => {
     setIsCapturing(!isCapturing);
   };
 
+  // Function to add to history
   const addToHistory = (action) => {
     const timestamp = new Date().toISOString();
     setHistory([...history, { action, timestamp }]);
   };
 
+  // Function to clear history
   const clearHistory = () => {
     setHistory([]);
   };
 
+  // Function to toggle lock container
   const toggleLockContainer = (index) => {
     const newLockedContainers = [...lockedContainers];
     newLockedContainers[index] = !newLockedContainers[index];
     setLockedContainers(newLockedContainers);
   };
 
+  // Function to update custom keywords
   const updateCustomKeywords = (index, keywords) => {
     const newCustomKeywords = [...customKeywords];
     newCustomKeywords[index] = keywords.split(',').map(keyword => keyword.trim().toLowerCase());
     setCustomKeywords(newCustomKeywords);
   };
 
+  // Function to calculate total count
   const totalCount = counts.reduce((acc, count) => acc + count, 0);
 
+  // Function to export history to CSV
   const exportToCSV = () => {
     const csvContent = "data:text/csv;charset=utf-8," 
       + history.map(e => `${e.timestamp},${e.action}`).join("\n");
@@ -99,6 +117,11 @@ const CounterPage = () => {
     document.body.appendChild(link);
     link.click();
   };
+
+  // Render loading state
+  if (isLoading) return <div>Loading...</div>;
+  // Render error state
+  if (error) return <div>Error: {error.message}</div>;
 
   return (
     <div className="min-h-screen p-4 bg-gray-100">
